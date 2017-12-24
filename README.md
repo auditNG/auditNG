@@ -39,3 +39,7 @@ count
 Score
 Classification:
 RED, YELLOW, GREEN
+
+Identifying privilege escalation through the different phases
+
+RED, YELLOW, GREEN
