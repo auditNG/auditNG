@@ -1,5 +1,6 @@
 # auditNG: Tool for container level system call auditing made effective with selective reporting
 
+## Introduction
 This tool is a service end component for the client side daemon: https://github.com/ubercoolsec/go-audit-container
 
 System call auditing on production servers has been around for a very long time. Aggregating system call events from Linux's audit component using auditd daemon has been time tested. However, given the amount of auditd logs that get generated on a daily basis, most of which are routine, administrators go blind to typical priviledge escalation attempts like failed sudo accesses, failed multiple login attempts, unauthorized file access, etc.
@@ -17,16 +18,6 @@ The stack includes:
  - Tensorflow
  - Pre-processing code
 
-The output of go-audit-container is as follows:
-Success:
-Dec 20 09:03:14 idc-dost-bm03.dev.walmart.com go-audit[11358]: {"sequence":861471,"timestamp":"1513740794.529","messages":[{"type":1300,"data":"arch=c000003e syscall=59 success=yes exit=0 a0=ec87d0 a1=ec64a0 a2=ed5490 a3=7ffccb076780 items=2 ppid=11461 pid=11616 auid=1006 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts2 ses=8137 comm=\"grep\" exe=\"/usr/bin/grep\" subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=\"user_commands\""},{"type":1309,"data":"argc=3 a0=\"grep\" a1=\"--color=auto\" a2=\"go-audit\""},{"type":1307,"data":" cwd=\"/root\""},{"type":1302,"data":"item=0 name=\"/bin/grep\" inode=100667447 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:bin_t:s0 objtype=NORMAL"},{"type":1302,"data":"item=1 name=\"/lib64/ld-linux-x86-64.so.2\" inode=43653168 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0 objtype=NORMAL"}],"uid_map":{"0":"root","1006":"rhonnav"},"container_id":0}
-
-Dec 20 09:57:10 idc-dost-bm03.dev.walmart.com go-audit[11358]: {"sequence":862017,"timestamp":"1513744030.477","messages":[{"type":1300,"data":"arch=c000003e syscall=59 success=yes exit=0 a0=168fb00 a1=17988f0 a2=16814d0 a3=7ffed1fbfa50 items=2 ppid=11401 pid=12276 auid=1006 uid=1006 gid=1006 euid=1006 suid=1006 fsuid=1006 egid=1006 sgid=1006 fsgid=1006 tty=pts2 ses=8137 comm=\"touch\" exe=\"/usr/bin/touch\" subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=\"user_commands\""},{"type":1309,"data":"argc=2 a0=\"touch\" a1=\"/root/abc\""},{"type":1307,"data":" cwd=\"/home/rhonnav\""},{"type":1302,"data":"item=0 name=\"/usr/bin/touch\" inode=100692532 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:bin_t:s0 objtype=NORMAL"},{"type":1302,"data":"item=1 name=\"/lib64/ld-linux-x86-64.so.2\" inode=43653168 dev=fd:00 mode=0100755 ouid=0 ogid=0 rdev=00:00 obj=system_u:object_r:ld_so_t:s0 objtype=NORMAL"}],"uid_map":{"0":"root","1006":"rhonnav"},"container_id":0}
-
-Failure:
-
-Dec 20 09:57:10 idc-dost-bm03.dev.walmart.com go-audit[11358]: {"sequence":862018,"timestamp":"1513744030.480","messages":[{"type":1300,"data":"arch=c000003e syscall=2 success=no exit=-13 a0=7fff6454c6c2 a1=941 a2=1b6 a3=7fff6454b090 items=1 ppid=11401 pid=12276 auid=1006 uid=1006 gid=1006 euid=1006 suid=1006 fsuid=1006 egid=1006 sgid=1006 fsgid=1006 tty=pts2 ses=8137 comm=\"touch\" exe=\"/usr/bin/touch\" subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=\"access\""},{"type":1307,"data":" cwd=\"/home/rhonnav\""},{"type":1302,"data":"item=0 name=\"/root/abc\" objtype=UNKNOWN"}],"uid_map":{"1006":"rhonnav"},"container_id":0}
-
 Machine learning features
 Features:
 
@@ -40,6 +31,54 @@ Score
 Classification:
 RED, YELLOW, GREEN
 
-Identifying privilege escalation through the different phases
 
-RED, YELLOW, GREEN
+## Anomaly detection usecases
+### Privilege escalation
+One of the anomalies that this tool will help detect is potential privilege escalation attempts across all the monitored nodes. 
+
+
+#### Privilege escalation lifecycle
+
+<img src="https://github.com/rhonnava/auditNG/blob/master/wiki/hacking_cycle.png" width="600" height="500">
+
+
+##### Reconnaissance and scanning
+Privilege escalation attempts start with reconnaissance. Detection at this phase helps nipping attacks in the bud. auditNG helps drilldown to such potential privilege escalation attempts across the network on different hosts and classify the actions into red/yellow/green. Below are some of the reconnaissance attempts that are detected:
+
+ - Listing all setuid files
+ - Locating custom user accounts with some 'known default' uids. (0, 500, 501, 502, 1000, 1001, 1002, 2000, 2001, 2002)
+ - Frequent calls to whoami
+ - Several calls to lastlog across several hosts
+ - Check to see if any hashes are stored in /etc/passwd (grep -v '^[^:]*:[x]' /etc/passwd 2>/dev/null)
+ - Access to /etc/passwd, /etc/shadow, /etc/master.passwd, etc from vim, cat, nano, grep, etc
+ - Looking if we can sudo on a box without supplying password (echo '' | sudo -S -l 2>/dev/null)
+ - Looking for know good breakout binaries for sudo based exploits. (echo '' | sudo -S -l 2>/dev/null | grep -w 'nmap\|perl\|'awk'\|'find'\|'bash'\|'sh'\|'man'\|'more'\|'less'\|'vi'\|'emacs'\|'vim'\|'nc'\|'netcat'\|python\|ruby\|lua\|irb' | xargs -r ls -la 2>/dev/null) 
+ - Searches for rhost entries
+ - Looking for nfs shares and permissions (ls -la /etc/exports 2>/dev/null; cat /etc/exports 2>/dev/null)
+ - Looking for credentials in /etc/fstab
+
+
+
+##### Privilege escalation
+Next, auditNG helps detect some well know privilege escalation attempts:
+
+ - Dirty COW exploit
+ - Detecting tar checkpoint command execution vilnerability by triggering an open/creat syscall with pattern "checkpoint"
+ - find, vi, tar, nmap, etc commands with command execution parameters (Eg. find -exec could potentially lead to suid exploit if suid is set for find)
+
+##### Clearing trails
+Below are some typical attempts to clearing trails that will be flagged as anomalies by auditNG:
+
+ - Write system call from editors into ~/.*_history, /root/.*_history, etc or any history -d attempts.
+ - Write system calls to syslog files like /var/log/messages from any process other than syslog daemon.
+
+
+##### references
+ - https://www.sans.org/reading-room/whitepapers/testing/attack-defend-linux-privilege-escalation-techniques-2016-37562
+ - https://github.com/dirtycow/dirtycow.github.io/blob/master/dirtyc0w.c
+ - https://github.com/rebootuser/LinEnum.git
+ - http://www.hackingarticles.in/4-ways-get-linux-privilege-escalation/
+
+
+
+
