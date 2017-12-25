@@ -33,7 +33,7 @@ RED, YELLOW, GREEN
 
 
 ## Usecases
-###Identifying privilege escalation through the different phases
+### Identifying privilege escalation through the different phases
 
 <img src="https://github.com/rhonnava/auditNG/blob/master/wiki/hacking_cycle.png" width="600" height="500">
 
