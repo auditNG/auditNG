@@ -32,8 +32,15 @@ Classification:
 RED, YELLOW, GREEN
 
 
-## Usecases
-### Identifying privilege escalation through the different phases
+## Anomaly detection usecases
+### Privilege escalation
+One of the anomalies that this tool will help detect is potential privilege escalation attempts across all the monitored nodes. 
+
+Privilege escalation attempts start with reconnaissance. Detection at this phase helps nipping attacks in the bud. auditNG helps drilldown to such potential privilege escalation attempts across the network on different hosts and classify the actions into red/yellow/green. Below are some of the reconnaissance attempts that are detected:
+
+Next, it helps detect some well know privilege escalation attempts like the following:
+
+#### Privilege escalation lifecycle
 
 <img src="https://github.com/rhonnava/auditNG/blob/master/wiki/hacking_cycle.png" width="600" height="500">
 
