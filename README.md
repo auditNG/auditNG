@@ -36,13 +36,48 @@ RED, YELLOW, GREEN
 ### Privilege escalation
 One of the anomalies that this tool will help detect is potential privilege escalation attempts across all the monitored nodes. 
 
-Privilege escalation attempts start with reconnaissance. Detection at this phase helps nipping attacks in the bud. auditNG helps drilldown to such potential privilege escalation attempts across the network on different hosts and classify the actions into red/yellow/green. Below are some of the reconnaissance attempts that are detected:
-
-Next, it helps detect some well know privilege escalation attempts like the following:
 
 #### Privilege escalation lifecycle
 
 <img src="https://github.com/rhonnava/auditNG/blob/master/wiki/hacking_cycle.png" width="600" height="500">
+
+
+##### Reconnaissance and scanning
+Privilege escalation attempts start with reconnaissance. Detection at this phase helps nipping attacks in the bud. auditNG helps drilldown to such potential privilege escalation attempts across the network on different hosts and classify the actions into red/yellow/green. Below are some of the reconnaissance attempts that are detected:
+
+ - Listing all setuid files
+ - Locating custom user accounts with some 'known default' uids. (0, 500, 501, 502, 1000, 1001, 1002, 2000, 2001, 2002)
+ - Frequent calls to whoami
+ - Several calls to lastlog across several hosts
+ - Check to see if any hashes are stored in /etc/passwd (grep -v '^[^:]*:[x]' /etc/passwd 2>/dev/null)
+ - Access to /etc/passwd, /etc/shadow, /etc/master.passwd, etc from vim, cat, nano, grep, etc
+ - Looking if we can sudo on a box without supplying password (echo '' | sudo -S -l 2>/dev/null)
+ - Looking for know good breakout binaries for sudo based exploits. (echo '' | sudo -S -l 2>/dev/null | grep -w 'nmap\|perl\|'awk'\|'find'\|'bash'\|'sh'\|'man'\|'more'\|'less'\|'vi'\|'emacs'\|'vim'\|'nc'\|'netcat'\|python\|ruby\|lua\|irb' | xargs -r ls -la 2>/dev/null) 
+ - Searches for rhost entries
+ - Looking for nfs shares and permissions (ls -la /etc/exports 2>/dev/null; cat /etc/exports 2>/dev/null)
+ - Looking for credentials in /etc/fstab
+
+
+
+##### Privilege escalation
+Next, auditNG helps detect some well know privilege escalation attempts:
+
+ - Dirty COW exploit
+ - Detecting tar checkpoint command execution vilnerability by triggering an open/creat syscall with pattern "checkpoint"
+ - find, vi, tar, nmap, etc commands with command execution parameters (Eg. find -exec could potentially lead to suid exploit if suid is set for find)
+
+##### Clearing trails
+Below are some typical attempts to clearing trails that will be flagged as anomalies by auditNG:
+
+ - Write system call from editors into ~/.*_history, /root/.*_history, etc or any history -d attempts.
+ - Write system calls to syslog files like /var/log/messages from any process other than syslog daemon.
+
+
+##### references
+ - https://www.sans.org/reading-room/whitepapers/testing/attack-defend-linux-privilege-escalation-techniques-2016-37562
+ - https://github.com/dirtycow/dirtycow.github.io/blob/master/dirtyc0w.c
+ - https://github.com/rebootuser/LinEnum.git
+ - http://www.hackingarticles.in/4-ways-get-linux-privilege-escalation/
 
 
 
