@@ -42,4 +42,4 @@ RED, YELLOW, GREEN
 
 Identifying privilege escalation through the different phases
 
-![](https://github.com/rhonnava/auditNG/blob/master/wiki/hacking_cycle.png)
+![hacking_cycle](https://github.com/rhonnava/auditNG/blob/master/wiki/hacking_cycle.png =500X500)
