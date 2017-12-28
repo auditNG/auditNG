@@ -1,0 +1,20 @@
+{
+   "properties":{
+      "sequence":{
+         "type":"long"
+      },
+      "audit_messages":{
+         "properties":{
+            "event_type":{
+               "type":"integer"
+            },
+            "data":{
+               "type":"text"
+            }
+         }
+      },
+      "container_id":{
+         "type":"integer"
+      }
+   }
+}
