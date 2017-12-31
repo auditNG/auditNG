@@ -92,6 +92,6 @@ File integrity monitoring is needed to monitor all access activities on sensitiv
 
 Certain sensitive files are expected to be accessed only by a whitelisted set of applications. For example, an application server, say tomcat is expected to maintain its private keys (needed for TLS handshakes) in a .pem file on the file system. However, only the application server is expected to access it and no other application. Any anomaly from the whitelisted applications, with respect to such file access can be flagged as an anomaly.
 
-### ### Container breakout detection
+### Container breakout detection
 Detection of a file access by a process with a container tag, having broken out of the namespace.
 
