@@ -83,6 +83,8 @@ Below are some typical attempts to clearing trails that will be flagged as anoma
  - https://github.com/rebootuser/LinEnum.git
  - http://www.hackingarticles.in/4-ways-get-linux-privilege-escalation/
 
-
+### East - west threats
+Lateral movement of malware across hosts behind a firewall, goes undetected if there is no netflow monitoring mechanism in place. An easier way to achieve this drilling down the audit logs for connect system calls. Connect system calls are audited along with the parameters, resulting in insight on all connections made from a given host. 
+Configuring allowed rules in the queries and flagging anything else as an anomaly helps in detecting such lateral spreading of malware.
 
 
