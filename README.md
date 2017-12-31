@@ -87,4 +87,7 @@ Below are some typical attempts to clearing trails that will be flagged as anoma
 Lateral movement of malware across hosts behind a firewall, goes undetected if there is no netflow monitoring mechanism in place. An easier way to achieve this drilling down the audit logs for connect system calls. Connect system calls are audited along with the parameters, resulting in insight on all connections made from a given host. 
 Configuring allowed rules in the queries and flagging anything else as an anomaly helps in detecting such lateral spreading of malware.
 
+### File integrity monitoring
+File integrity monitoring is needed to monitor all access activities on sensitive files. It is also mandated by many regulatory requirements like PCI DSS. 
 
+Certain sensitive files are expected to be accessed only by a whitelisted set of applications. For example, an application server, say tomcat is expected to maintain its private keys (needed for TLS handshakes) in a .pem file on the file system. However, only the application server is expected to access it and no other application. Any anomaly from the whitelisted applications, with respect to such file access can be flagged as an anomaly.
