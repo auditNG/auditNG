@@ -1,0 +1,6 @@
+{
+    "es_config" : {
+    "uri" : "http:\/\/172.30.92.50:9200\/audit_log\/_search?pretty&filter_path=hits.hits._source"
+    "payload" : "{\r\n\t\"_source\" : [\"message\", \"@timestamp\"],\r\n    \"query\" : {\r\n    \t\"bool\" : {\r\n    \t\t\"filter\" : {\r\n        \t\t\"range\" : { \"@timestamp\" : {\"gte\": \"2017-12-27\", \"lt\" : \"2017-12-28\"} }\r\n        \t}\r\n        }\r\n    }\r\n}\r\n"
+  }
+}

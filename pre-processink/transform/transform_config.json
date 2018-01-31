@@ -1,0 +1,26 @@
+"transform_config" : {
+  "fim" : {
+    "file_app_mapping" : {
+      "httpd.conf" : "httpd",
+      "ssl.conf" : "httpd",
+      "server.xml" : "java"
+    },
+    "app_greylist" : [
+      "vim",
+      "cat",
+      "tail",
+      "head",
+      "more",
+      "less",
+      "nano"
+    ],
+    "file_list" : [
+      "key.pem",
+      "server.xml"
+    ],
+    "flag_lists" : [
+      ["syscall=2", "exit=-13"],
+      ["syscall=2", "success=no"]
+    ]
+  }
+}
