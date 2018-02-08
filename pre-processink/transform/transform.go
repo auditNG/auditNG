@@ -42,36 +42,51 @@ func (t Transform) Process(input string) error {
 }
 
 func (t Transform) processMessage(message string) {
-	syscall, err := t.getSysCall(message)
+  sysstr, err := t.getStringValue(message, "syscall=")
 	if nil != err {
 		fmt.Println("Unable to get syscall")
 	}
+  fmt.Println("syscall: " + sysstr)
 
-	fmt.Println("syscall is:" + string(syscall))
+	syscall, err := t.getIntValue(message, "syscall=")
+	if nil != err {
+		fmt.Println("Unable to get syscall")
+	}
+  fmt.Println("syscall: " + strconv.Itoa(syscall))
+
+  exitcode, err := t.getIntValue(message, "exit=")
+	if nil != err {
+		fmt.Println("Unable to get exitcode")
+	}
+  fmt.Println("exitcode: " + strconv.Itoa(exitcode))
+
 }
 
-func (t Transform) getSysCall(message string) (int, error) {
-	data := message
-	start := 0
-	end := 0
+func (t Transform) getStringValue(message string, key string) (string, error) {
+  data := message
+  start := 0
+  end := 0
 
-	if start = strings.Index(data, "syscall="); start < 0 {
-		return 0, errors.New("Error parsing syscall")
-	}
+  if start = strings.Index(data, key); start < 0 {
+    return "", errors.New("Error parsing exit code")
+  }
 
-	// Progress the start point beyond the = sign
-	start += 8
-	if end = strings.IndexByte(data[start:], spaceChar); end < 0 {
-		// There was no ending space, maybe the syscall id is at the end of the line
-		end = len(data) - start
+  // Progress the start point beyond the = sign
+  start += len(key)
+  if end = strings.IndexByte(data[start:], spaceChar); end < 0 {
+    // There was no ending space, maybe the syscall id is at the end of the line
+    end = len(data) - start
+  }
 
-		// If the end of the line is greater than 5 characters away (overflows a 16 bit uint) then it can't be a syscall id
-		if end > 5 {
-      return 0, errors.New("Error parsing syscall")
-		}
-	}
+  retval := data[start : start+end]
+  return retval, nil
+}
 
-	syscall := data[start : start+end]
-  fmt.Println("syscall is:" + syscall)
-	return strconv.Atoi(syscall)
+func (t Transform) getIntValue(message string, key string) (int, error) {
+  val, err := t.getStringValue(message, key)
+  if (err != nil) {
+    return 0, err
+  }
+
+	return strconv.Atoi(val)
 }
