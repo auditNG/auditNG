@@ -1,12 +1,12 @@
 package source
 
 import (
-  "fmt"
+	"fmt"
+	"github.com/buger/jsonparser"
 	"io/ioutil"
 	"net/http"
-  "github.com/buger/jsonparser"
 
-  "github.com/pre-processink/util"
+	"github.com/pre-processink/util"
 )
 
 func NewESSource() Source {
@@ -21,7 +21,7 @@ func (es ESSource) Fetch() (string, error) {
 	f := "es.json"
 	config, err := ioutil.ReadFile(f)
 	if err != nil {
-			fmt.Println("Error reading file: ", err, ", File: ", f)
+		fmt.Println("Error reading file: ", err, ", File: ", f)
 		return "", err
 	}
 
